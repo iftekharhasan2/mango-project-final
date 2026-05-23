@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — URBOR</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+  --green:#1a5d3a;
+  --green-light:#2d7a4f;
+  --green-dark:#0f3d26;
+  --cream:#faf8f5;
+  --text:#111;
+  --border:#ebe7de;
+  --error:#c62828;
+  --success:#1a5d3a;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+h1,h2,h3,.serif{font-family:'Playfair Display',serif;}
+
+/* =====================
+   ANIMATIONS
+===================== */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes slideInRight{
+  from{opacity:0;transform:translateX(30px);}
+  to{opacity:1;transform:translateX(0);}
+}
+
+@keyframes pulse-ring{
+  0%{box-shadow:0 0 0 0 rgba(26,93,58,.4);}
+  70%{box-shadow:0 0 0 12px rgba(26,93,58,0);}
+  100%{box-shadow:0 0 0 0 rgba(26,93,58,0);}
+}
+
+@keyframes shimmer{
+  0%{background-position:-200% center;}
+  100%{background-position:200% center;}
+}
+
+@keyframes checkmark{
+  0%{stroke-dashoffset:100;}
+  100%{stroke-dashoffset:0;}
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  10%,30%,50%,70%,90%{transform:translateX(-4px);}
+  20%,40%,60%,80%{transform:translateX(4px);}
+}
+
+/* =====================
+   NAV
+===================== */
+nav{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 5%;
+  height:72px;
+  background:linear-gradient(135deg, var(--green-dark) 0%, var(--green) 60%, #2a6e45 100%);
+  box-shadow:0 4px 32px rgba(15,61,38,.45);
+}
+
+.nav-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+}
+
+.brand-logo{
+  width:38px;
+  height:38px;
+  object-fit:contain;
+  filter:brightness(0) invert(1);
+  transition:transform .3s;
+}
+
+.nav-brand:hover .brand-logo{transform:rotate(-6deg) scale(1.1);}
+
+.nav-brand-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.25rem;
+  font-weight:800;
+  color:#fff;
+  letter-spacing:.01em;
+}
+
+.nav-brand-tagline{
+  font-size:.65rem;
+  font-weight:500;
+  color:rgba(255,255,255,.55);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-top:2px;
+}
+
+.back-link{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  color:rgba(255,255,255,.8);
+  text-decoration:none;
+  font-size:.9rem;
+  font-weight:500;
+  transition:color .2s;
+  padding:.5rem 1rem;
+  border-radius:999px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);
+}
+
+.back-link:hover{
+  color:#fff;
+  background:rgba(255,255,255,.18);
+}
+
+/* =====================
+   PROGRESS STEPS
+===================== */
+.progress-bar{
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  padding:1.5rem 5%;
+}
+
+.progress-inner{
+  max-width:600px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.step{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.5rem;
+  position:relative;
+}
+
+.step-circle{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:.9rem;
+  transition:all .4s cubic-bezier(.34,1.56,.64,1);
+  border:2px solid var(--border);
+  background:#fff;
+  color:#999;
+}
+
+.step.active .step-circle{
+  background:var(--green);
+  color:#fff;
+  border-color:var(--green);
+  box-shadow:0 4px 16px rgba(26,93,58,.3);
+}
+
+.step.completed .step-circle{
+  background:var(--green);
+  color:#fff;
+  border-color:var(--green);
+}
+
+.step.completed .step-circle i{font-size:.85rem;}
+
+.step-label{
+  font-size:.75rem;
+  font-weight:600;
+  color:#999;
+  letter-spacing:.04em;
+}
+
+.step.active .step-label{color:var(--green);}
+
+.step-line{
+  flex:1;
+  height:2px;
+  background:var(--border);
+  margin:0 1rem;
+  margin-bottom:1.5rem;
+  position:relative;
+  overflow:hidden;
+}
+
+.step-line-fill{
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:0%;
+  background:var(--green);
+  transition:width .6s cubic-bezier(.4,0,.2,1);
+}
+
+.step-line.completed .step-line-fill{width:100%;}
+
+/* =====================
+   MAIN LAYOUT
+===================== */
+.checkout-main{
+  max-width:1200px;
+  margin:0 auto;
+  padding:3rem 5%;
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:3rem;
+  align-items:start;
+}
+
+@media(max-width:968px){
+  .checkout-main{
+    grid-template-columns:1fr;
+    gap:2rem;
+  }
+}
+
+/* =====================
+   FORM SECTIONS
+===================== */
+.form-section{
+  background:#fff;
+  border-radius:24px;
+  padding:2rem;
+  box-shadow:0 4px 24px rgba(0,0,0,.06);
+  margin-bottom:1.5rem;
+  animation:fadeInUp .6s ease both;
+}
+
+.form-section:nth-child(2){animation-delay:.1s;}
+.form-section:nth-child(3){animation-delay:.2s;}
+
+.section-header-flex{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  margin-bottom:1.5rem;
+}
+
+.section-icon{
+  width:44px;
+  height:44px;
+  background:linear-gradient(135deg, var(--green-dark), var(--green));
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:1.1rem;
+  box-shadow:0 8px 20px rgba(26,93,58,.25);
+}
+
+.section-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem;
+  font-weight:700;
+  color:var(--text);
+}
+
+.section-subtitle{
+  color:#888;
+  font-size:.9rem;
+  margin-top:.25rem;
+}
+
+/* =====================
+   INPUTS
+===================== */
+.input-group{
+  margin-bottom:1.25rem;
+}
+
+.input-group label{
+  display:block;
+  font-size:.85rem;
+  font-weight:600;
+  color:#444;
+  margin-bottom:.5rem;
+  letter-spacing:.02em;
+}
+
+.input-group label .required{
+  color:var(--error);
+  margin-left:2px;
+}
+
+.input-wrapper{
+  position:relative;
+}
+
+.input-wrapper i{
+  position:absolute;
+  left:1rem;
+  top:50%;
+  transform:translateY(-50%);
+  color:#aaa;
+  font-size:1rem;
+  transition:color .2s;
+}
+
+.input-wrapper input,
+.input-wrapper textarea{
+  width:100%;
+  padding:1rem 1rem 1rem 2.75rem;
+  border:1.5px solid #e2e8e4;
+  border-radius:14px;
+  font-family:'Inter',sans-serif;
+  font-size:.95rem;
+  color:var(--text);
+  background:#fff;
+  transition:border-color .2s, box-shadow .2s, background .2s;
+}
+
+.input-wrapper textarea{
+  padding-left:1rem;
+  min-height:100px;
+  resize:vertical;
+}
+
+.input-wrapper input:focus,
+.input-wrapper textarea:focus{
+  outline:none;
+  border-color:var(--green);
+  box-shadow:0 0 0 4px rgba(26,93,58,.08);
+  background:#fff;
+}
+
+.input-wrapper input:focus + i,
+.input-wrapper input:not(:placeholder-shown) + i{
+  color:var(--green);
+}
+
+.input-wrapper input.error,
+.input-wrapper textarea.error{
+  border-color:var(--error);
+  background:#fff5f5;
+  animation:shake .4s ease;
+}
+
+.input-wrapper input.error:focus{
+  box-shadow:0 0 0 4px rgba(198,40,40,.08);
+}
+
+.input-hint{
+  font-size:.8rem;
+  color:#999;
+  margin-top:.4rem;
+  display:flex;
+  align-items:center;
+  gap:.3rem;
+}
+
+/* =====================
+   PAYMENT METHOD
+===================== */
+.payment-options{
+  display:flex;
+  flex-direction:column;
+  gap:.75rem;
+}
+
+.payment-option{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  padding:1.25rem;
+  border:2px solid #e2e8e4;
+  border-radius:16px;
+  cursor:pointer;
+  transition:all .3s ease;
+  background:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+.payment-option::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(26,93,58,.04), rgba(26,93,58,.02));
+  opacity:0;
+  transition:opacity .3s;
+}
+
+.payment-option:hover{
+  border-color:var(--green-light);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+.payment-option:hover::before{opacity:1;}
+
+.payment-option.selected{
+  border-color:var(--green);
+  background:linear-gradient(135deg, rgba(26,93,58,.04), rgba(26,93,58,.02));
+  box-shadow:0 4px 16px rgba(26,93,58,.12);
+}
+
+.payment-option.selected::before{opacity:1;}
+
+.payment-radio{
+  width:22px;
+  height:22px;
+  border:2px solid #ccc;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  transition:all .3s;
+  position:relative;
+  z-index:1;
+}
+
+.payment-option.selected .payment-radio{
+  border-color:var(--green);
+  background:var(--green);
+}
+
+.payment-radio::after{
+  content:'';
+  width:8px;
+  height:8px;
+  background:#fff;
+  border-radius:50%;
+  transform:scale(0);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+
+.payment-option.selected .payment-radio::after{transform:scale(1);}
+
+.payment-icon{
+  width:48px;
+  height:48px;
+  background:linear-gradient(135deg, var(--green-dark), var(--green));
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:1.3rem;
+  flex-shrink:0;
+  position:relative;
+  z-index:1;
+}
+
+.payment-details{flex:1;position:relative;z-index:1;}
+
+.payment-name{
+  font-weight:700;
+  font-size:1rem;
+  color:var(--text);
+  margin-bottom:.2rem;
+}
+
+.payment-desc{
+  font-size:.85rem;
+  color:#888;
+}
+
+.payment-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.3rem;
+  background:rgba(26,93,58,.1);
+  color:var(--green);
+  font-size:.75rem;
+  font-weight:700;
+  padding:.25rem .6rem;
+  border-radius:999px;
+  margin-left:.5rem;
+}
+
+/* =====================
+   ORDER SUMMARY (STICKY)
+===================== */
+.summary-card{
+  background:#fff;
+  border-radius:24px;
+  padding:2rem;
+  box-shadow:0 4px 24px rgba(0,0,0,.06);
+  position:sticky;
+  top:96px;
+  animation:slideInRight .6s .1s ease both;
+}
+
+.summary-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.3rem;
+  font-weight:700;
+  margin-bottom:1.5rem;
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+}
+
+.summary-items{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  margin-bottom:1.5rem;
+  max-height:320px;
+  overflow-y:auto;
+  padding-right:.5rem;
+}
+
+.summary-items::-webkit-scrollbar{width:4px;}
+.summary-items::-webkit-scrollbar-track{background:transparent;}
+.summary-items::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px;}
+
+.summary-item{
+  display:flex;
+  gap:1rem;
+  align-items:center;
+  padding:1rem;
+  background:var(--cream);
+  border-radius:16px;
+  transition:transform .2s;
+}
+
+.summary-item:hover{transform:translateX(4px);}
+
+.item-emoji{
+  width:48px;
+  height:48px;
+  background:#fff;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.6rem;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  flex-shrink:0;
+}
+
+.item-info{flex:1;min-width:0;}
+
+.item-name{
+  font-weight:600;
+  font-size:.95rem;
+  color:var(--text);
+  margin-bottom:.2rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.item-meta{
+  font-size:.8rem;
+  color:#888;
+}
+
+.item-price{
+  font-weight:700;
+  font-size:1rem;
+  color:var(--green);
+  white-space:nowrap;
+}
+
+/* Divider */
+.divider{
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--border), transparent);
+  margin:1.5rem 0;
+}
+
+/* Totals */
+.total-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:.75rem;
+  font-size:.95rem;
+}
+
+.total-row.discount{color:var(--green);}
+
+.total-row.grand-total{
+  font-size:1.2rem;
+  font-weight:700;
+  color:var(--text);
+  margin-top:1rem;
+  padding-top:1rem;
+  border-top:2px solid var(--border);
+}
+
+.total-row.grand-total .price{
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;
+  color:var(--green);
+}
+
+/* Place Order Button */
+.place-order-btn{
+  width:100%;
+  border:none;
+  background:linear-gradient(135deg, var(--green), var(--green-light));
+  color:#fff;
+  padding:1.1rem;
+  border-radius:16px;
+  font-weight:700;
+  font-size:1.05rem;
+  cursor:pointer;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  margin-top:1.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
+  box-shadow:0 8px 28px rgba(26,93,58,.35);
+  position:relative;
+  overflow:hidden;
+  letter-spacing:.02em;
+}
+
+.place-order-btn::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, var(--green-light), var(--green), var(--green-light));
+  opacity:0;
+  transition:opacity .3s;
+}
+
+.place-order-btn:hover{
+  transform:translateY(-3px) scale(1.02);
+  box-shadow:0 14px 40px rgba(26,93,58,.45);
+}
+
+.place-order-btn:hover::before{opacity:1;}
+
+.place-order-btn:active{transform:translateY(-1px) scale(.98);}
+
+.place-order-btn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:0 4px 16px rgba(26,93,58,.2);
+}
+
+.place-order-btn span{position:relative;z-index:1;}
+
+.place-order-btn i{position:relative;z-index:1;transition:transform .3s;}
+
+.place-order-btn:hover i{transform:translateX(4px);}
+
+/* Security badges */
+.security-badges{
+  display:flex;
+  justify-content:center;
+  gap:1.5rem;
+  margin-top:1.5rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--border);
+}
+
+.security-badge{
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  font-size:.8rem;
+  color:#888;
+}
+
+.security-badge i{color:var(--green);font-size:1rem;}
+
+/* =====================
+   SUCCESS MODAL
+===================== */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(8px);
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  visibility:hidden;
+  transition:all .4s ease;
+}
+
+.modal-overlay.show{
+  opacity:1;
+  visibility:visible;
+}
+
+.success-modal{
+  background:#fff;
+  border-radius:28px;
+  padding:3rem 2.5rem;
+  max-width:420px;
+  width:90%;
+  text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,.2);
+  transform:scale(.9) translateY(20px);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+}
+
+.modal-overlay.show .success-modal{
+  transform:scale(1) translateY(0);
+}
+
+.success-icon{
+  width:80px;
+  height:80px;
+  background:linear-gradient(135deg, var(--green-dark), var(--green));
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 1.5rem;
+  box-shadow:0 12px 32px rgba(26,93,58,.3);
+  animation:pulse-ring 2s infinite;
+}
+
+.success-icon svg{
+  width:40px;
+  height:40px;
+  stroke:#fff;
+  stroke-width:3;
+  fill:none;
+  stroke-dasharray:100;
+  stroke-dashoffset:100;
+  animation:checkmark .6s .3s ease forwards;
+}
+
+.success-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:.5rem;
+}
+
+.success-message{
+  color:#666;
+  font-size:1rem;
+  line-height:1.6;
+  margin-bottom:1.5rem;
+}
+
+.invoice-box{
+  background:var(--cream);
+  border-radius:16px;
+  padding:1.25rem;
+  margin-bottom:1.5rem;
+  border:2px dashed var(--border);
+}
+
+.invoice-label{
+  font-size:.85rem;
+  color:#888;
+  margin-bottom:.25rem;
+}
+
+.invoice-number{
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem;
+  font-weight:700;
+  color:var(--green);
+  letter-spacing:.05em;
+}
+
+.success-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:1rem 2rem;
+  background:linear-gradient(135deg, var(--green), var(--green-light));
+  color:#fff;
+  text-decoration:none;
+  border-radius:14px;
+  font-weight:700;
+  transition:all .3s;
+  box-shadow:0 8px 24px rgba(26,93,58,.3);
+}
+
+.success-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 32px rgba(26,93,58,.4);
+}
+
+/* =====================
+   TOAST
+===================== */
+#toast{
+  position:fixed;
+  top:24px;
+  right:24px;
+  background:#111;
+  color:#fff;
+  padding:14px 24px;
+  border-radius:16px;
+  opacity:0;
+  transform:translateY(-20px);
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:500;
+  max-width:420px;
+  box-shadow:0 12px 40px rgba(0,0,0,.35);
+  pointer-events:none;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+#toast.error{background:linear-gradient(135deg,#b71c1c,#c62828);}
+#toast.success{background:linear-gradient(135deg,#1a5d3a,#2d7a4f);}
+
+/* =====================
+   LOADING SPINNER
+===================== */
+.spinner{
+  width:20px;
+  height:20px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+
+/* =====================
+   EMPTY STATE
+===================== */
+.empty-cart-state{
+  text-align:center;
+  padding:4rem 2rem;
+  animation:fadeInUp .6s ease;
+}
+
+.empty-cart-state .emoji{
+  font-size:4rem;
+  margin-bottom:1rem;
+  display:block;
+}
+
+.empty-cart-state h2{
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem;
+  margin-bottom:.5rem;
+}
+
+.empty-cart-state p{
+  color:#888;
+  margin-bottom:1.5rem;
+}
+
+.shop-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:1rem 2rem;
+  background:linear-gradient(135deg, var(--green), var(--green-light));
+  color:#fff;
+  text-decoration:none;
+  border-radius:14px;
+  font-weight:700;
+  transition:all .3s;
+  box-shadow:0 8px 24px rgba(26,93,58,.3);
+}
+
+.shop-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 32px rgba(26,93,58,.4);
+}
+
+/* =====================
+   FORM ROW 2-COL
+===================== */
+.form-row-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+}
+
+@media(max-width:580px){
+  .form-row-2{grid-template-columns:1fr;}
+}
+
+/* =====================
+   PLAIN INPUT (no icon)
+===================== */
+.input-wrapper input[type="text"],
+.input-wrapper input[type="tel"]{
+  width:100%;
+  padding:1rem 1.1rem;
+  border:1.5px solid #e2e8e4;
+  border-radius:12px;
+  font-family:'Inter',sans-serif;
+  font-size:.95rem;
+  color:var(--text);
+  background:#fff;
+  transition:border-color .2s, box-shadow .2s;
+}
+
+.input-wrapper input:focus{
+  outline:none;
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(26,93,58,.08);
+}
+
+.input-wrapper input.error{
+  border-color:var(--error);
+  background:#fff5f5;
+  animation:shake .4s ease;
+}
+
+/* =====================
+   PHONE WITH FLAG
+===================== */
+.phone-input-wrapper{
+  display:flex;
+  align-items:center;
+  border:1.5px solid #e2e8e4;
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+  transition:border-color .2s, box-shadow .2s;
+}
+
+.phone-input-wrapper:focus-within{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(26,93,58,.08);
+}
+
+.phone-input-wrapper.error{
+  border-color:var(--error);
+  background:#fff5f5;
+}
+
+.phone-flag-box{
+  display:flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.95rem .85rem;
+  background:#f7f7f7;
+  border-right:1.5px solid #e2e8e4;
+  flex-shrink:0;
+  font-size:.9rem;
+  color:#444;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.flag-emoji{ font-size:1.15rem; line-height:1; }
+
+.phone-code{ font-size:.88rem; font-weight:700; color:#333; }
+
+.phone-number-input{
+  flex:1;
+  border:none !important;
+  outline:none !important;
+  padding:.95rem .9rem;
+  font-family:'Inter',sans-serif;
+  font-size:.95rem;
+  color:var(--text);
+  background:transparent;
+  box-shadow:none !important;
+  min-width:0;
+}
+
+.phone-number-input::placeholder{ color:#aaa; }
+
+/* =====================
+   SELECT DROPDOWNS
+===================== */
+.select-wrapper{
+  position:relative;
+}
+
+.select-wrapper select{
+  width:100%;
+  padding:1rem 2.5rem 1rem 1.1rem;
+  border:1.5px solid #e2e8e4;
+  border-radius:12px;
+  font-family:'Inter',sans-serif;
+  font-size:.95rem;
+  color:#555;
+  background:#fff;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  transition:border-color .2s, box-shadow .2s;
+}
+
+.select-wrapper select:focus{
+  outline:none;
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(26,93,58,.08);
+  color:var(--text);
+}
+
+.select-wrapper select:disabled{
+  background:#f5f5f5;
+  color:#bbb;
+  cursor:default;
+}
+
+.select-wrapper select.error{
+  border-color:var(--error);
+}
+
+.select-arrow{
+  position:absolute;
+  right:1rem;
+  top:50%;
+  transform:translateY(-50%);
+  color:#aaa;
+  font-size:.8rem;
+  pointer-events:none;
+  transition:color .2s;
+}
+
+.select-wrapper:focus-within .select-arrow{ color:var(--green); }
+
+/* =====================
+   COD BADGE SECTION
+===================== */
+.cod-badge-section{
+  animation:fadeInUp .6s .25s ease both;
+}
+
+.cod-badge{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  background:linear-gradient(135deg, rgba(26,93,58,.06), rgba(26,93,58,.03));
+  border:2px solid rgba(26,93,58,.2);
+  border-radius:18px;
+  padding:1.25rem 1.5rem;
+  box-shadow:0 4px 16px rgba(26,93,58,.08);
+}
+
+.cod-icon{
+  width:50px;
+  height:50px;
+  background:linear-gradient(135deg, var(--green-dark), var(--green));
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:1.3rem;
+  flex-shrink:0;
+  box-shadow:0 6px 18px rgba(26,93,58,.28);
+}
+
+.cod-info{ flex:1; }
+
+.cod-title{
+  font-weight:700;
+  font-size:1rem;
+  color:var(--green-dark);
+  margin-bottom:.25rem;
+}
+
+.cod-desc{
+  font-size:.85rem;
+  color:#666;
+  line-height:1.5;
+}
+
+.cod-check{
+  font-size:1.6rem;
+  color:var(--green);
+  flex-shrink:0;
+}
+
+
+  .checkout-main{padding:2rem 4%;}
+  .form-section{padding:1.5rem;}
+  .summary-card{position:static;}
+  .nav-brand-tagline{display:none;}
+  .progress-inner{padding:0 1rem;}
+  .step-label{font-size:.7rem;}
+  .step-circle{width:36px;height:36px;font-size:.8rem;}
+}
+
+/* Quantity stepper in summary */
+.qty-stepper-sm{
+  display:flex;
+  align-items:center;
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:.5rem;
+}
+
+.qty-stepper-sm button{
+  width:28px;
+  height:28px;
+  border:none;
+  background:#fff;
+  cursor:pointer;
+  font-size:.9rem;
+  color:var(--text);
+  transition:background .2s;
+}
+
+.qty-stepper-sm button:hover{background:#f0f0f0;}
+
+.qty-stepper-sm span{
+  width:32px;
+  text-align:center;
+  font-weight:700;
+  font-size:.85rem;
+}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="URBOR" class="brand-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="nav-brand-name">URBOR</div>
+      <div class="nav-brand-tagline">তাজা আম সরবরাহ</div>
+    </div>
+  </a>
+  <a href="/" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    <span>Continue Shopping</span>
+  </a>
+</nav>
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <div class="progress-inner">
+    <div class="step active" id="step-1">
+      <div class="step-circle">1</div>
+      <span class="step-label">Shipping</span>
+    </div>
+    <div class="step-line" id="line-1"><div class="step-line-fill"></div></div>
+    <div class="step" id="step-2">
+      <div class="step-circle">2</div>
+      <span class="step-label">Payment</span>
+    </div>
+    <div class="step-line" id="line-2"><div class="step-line-fill"></div></div>
+    <div class="step" id="step-3">
+      <div class="step-circle">3</div>
+      <span class="step-label">Confirm</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="checkout-main" id="checkout-main">
+
+  <!-- LEFT: FORM -->
+  <div class="checkout-form" id="checkout-form-container">
+
+    <!-- Shipping -->
+    <div class="form-section" id="shipping-section">
+      <div class="section-header-flex">
+        <div class="section-icon"><i class="fas fa-truck"></i></div>
+        <div>
+          <h2 class="section-title">Shipping Info</h2>
+          <p class="section-subtitle">Enter your delivery details</p>
+        </div>
+      </div>
+
+      <!-- Row 1: Name + Phone -->
+      <div class="form-row-2">
+        <div class="input-group">
+          <div class="input-wrapper">
+            <input type="text" id="f-name" placeholder="Your Full Name *" autocomplete="name">
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="phone-input-wrapper">
+            <div class="phone-flag-box">
+              <span class="flag-emoji">🇧🇩</span>
+              <span class="phone-code">+88</span>
+            </div>
+            <input type="tel" id="f-phone" placeholder="017XXXXXXXX বা +88017XXXXXXXX" autocomplete="tel" class="phone-number-input">
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Address full width -->
+      <div class="input-group">
+        <div class="input-wrapper">
+          <input type="text" id="f-address" placeholder="ex: House no. / building / street / area" autocomplete="street-address">
+        </div>
+      </div>
+
+      <!-- Row 3: District + Thana -->
+      <div class="form-row-2">
+        <div class="input-group">
+          <div class="select-wrapper">
+            <select id="f-district" onchange="onDistrictChange()">
+              <option value="">Select District</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="select-wrapper">
+            <select id="f-thana" disabled>
+              <option value="">Select Thana (Optional)</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COD Badge -->
+    <div class="cod-badge-section">
+      <div class="cod-badge">
+        <div class="cod-icon"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="cod-info">
+          <div class="cod-title">Cash on Delivery</div>
+          <div class="cod-desc">Pay when you receive your order — no advance payment needed</div>
+        </div>
+        <div class="cod-check"><i class="fas fa-check-circle"></i></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: SUMMARY -->
+  <div class="checkout-summary">
+    <div class="summary-card">
+      <h3 class="summary-title"><i class="fas fa-shopping-bag" style="color:var(--green);"></i> Order Summary</h3>
+
+      <div class="summary-items" id="summary-items">
+        <!-- Items injected by JS -->
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="total-row">
+        <span>Subtotal</span>
+        <span id="subtotal-price">৳ 0</span>
+      </div>
+      <div class="total-row">
+        <span>Delivery Fee</span>
+        <span style="color:var(--green);font-weight:600;">FREE</span>
+      </div>
+      <div class="total-row">
+        <span>Discount</span>
+        <span style="color:var(--green);">-৳ 0</span>
+      </div>
+
+      <div class="total-row grand-total">
+        <span>Total</span>
+        <span class="price" id="grand-total">৳ 0</span>
+      </div>
+
+      <button class="place-order-btn" id="place-order-btn" onclick="placeOrder()">
+        <span>Place Order</span>
+        <i class="fas fa-arrow-right"></i>
+      </button>
+
+      <div class="security-badges">
+        <div class="security-badge"><i class="fas fa-lock"></i> Secure</div>
+        <div class="security-badge"><i class="fas fa-shield-alt"></i> Protected</div>
+        <div class="security-badge"><i class="fas fa-check-circle"></i> Verified</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="success-modal">
+  <div class="success-modal">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h2 class="success-title">Order Placed!</h2>
+    <p class="success-message">Thank you for your order. We'll contact you shortly to confirm delivery.</p>
+    <div class="invoice-box">
+      <div class="invoice-label">Invoice Number</div>
+      <div class="invoice-number" id="invoice-number">---</div>
+    </div>
+    <a href="/" class="success-btn">
+      <i class="fas fa-home"></i> Back to Home
+    </a>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ========================
+// PRODUCT DATA (must match server PRODUCTS / PRODUCTS2)
+// ========================
+const PRODUCTS_CLIENT = {
+  "p1": { name: "Wireless Earbuds", price: 5,  emoji: "🎧" },
+  "p2": { name: "Phone Case",       price: 3,  emoji: "📱" },
+  "p3": { name: "USB-C Cable",      price: 18, emoji: "🔌" },
+  "bp1": { name: "Chicken 5KG",     price: 5,  emoji: "🍗" },
+  "bp2": { name: "Chicken 10KG",    price: 3,  emoji: "🍗" },
+  "bp3": { name: "Chicken 15KG",    price: 18, emoji: "🍗" },
+};
+
+// Get cart from URL params or localStorage
+function getCartFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const cartParam = params.get('cart');
+  if (cartParam) {
+    try { return JSON.parse(decodeURIComponent(cartParam)); } catch(e) { return {}; }
+  }
+  // Fallback to localStorage
+  try { return JSON.parse(localStorage.getItem('urbor_cart') || '{}'); } catch(e) { return {}; }
+}
+
+let cart = getCartFromURL();
+const selectedPayment = 'cod';
+
+// ========================
+// RENDER SUMMARY
+// ========================
+function renderSummary() {
+  const container = document.getElementById('summary-items');
+  const entries = Object.entries(cart);
+
+  if (entries.length === 0) {
+    document.getElementById('checkout-main').innerHTML = `
+      <div class="empty-cart-state" style="grid-column:1/-1;">
+        <span class="emoji">🛒</span>
+        <h2>Your cart is empty</h2>
+        <p>Add some delicious mangoes to get started!</p>
+        <a href="/" class="shop-btn"><i class="fas fa-leaf"></i> Shop Now</a>
+      </div>
+    `;
+    return;
+  }
+
+  let total = 0;
+  container.innerHTML = entries.map(([pid, qty]) => {
+    const p = PRODUCTS_CLIENT[pid];
+    if (!p) return '';
+    const subtotal = p.price * qty;
+    total += subtotal;
+    return `
+      <div class="summary-item">
+        <div class="item-emoji">${p.emoji}</div>
+        <div class="item-info">
+          <div class="item-name">${p.name}</div>
+          <div class="item-meta">৳${p.price} × ${qty}</div>
+          <div class="qty-stepper-sm">
+            <button onclick="adjustQty('${pid}', -1)">−</button>
+            <span>${qty}</span>
+            <button onclick="adjustQty('${pid}', 1)">+</button>
+          </div>
+        </div>
+        <div class="item-price">৳${subtotal.toLocaleString('en-BD')}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('subtotal-price').textContent = '৳ ' + total.toLocaleString('en-BD');
+  document.getElementById('grand-total').textContent = '৳ ' + total.toLocaleString('en-BD');
+}
+
+function adjustQty(pid, delta) {
+  const current = cart[pid] || 0;
+  const nq = current + delta;
+  if (nq <= 0) {
+    delete cart[pid];
+  } else if (nq <= 10) {
+    cart[pid] = nq;
+  } else {
+    toast('Maximum 10 items per product', true);
+    return;
+  }
+  try { localStorage.setItem('urbor_cart', JSON.stringify(cart)); } catch(e) {}
+  renderSummary();
+  // If cart emptied, redirect back
+  if (Object.keys(cart).length === 0) {
+    setTimeout(() => { window.location.href = '/'; }, 800);
+  }
+}
+
+// ========================
+// DISTRICTS & THANAS
+// ========================
+const BD_DISTRICTS = [
+  "Bagerhat","Bandarban","Barguna","Barishal","Bhola","Bogura","Brahmanbaria",
+  "Chandpur","Chattogram","Chuadanga","Cox's Bazar","Cumilla","Dhaka","Dinajpur",
+  "Faridpur","Feni","Gaibandha","Gazipur","Gopalganj","Habiganj","Jamalpur",
+  "Jashore","Jhalokati","Jhenaidah","Joypurhat","Khagrachari","Khulna","Kishoreganj",
+  "Kurigram","Kushtia","Lakshmipur","Lalmonirhat","Madaripur","Magura","Manikganj",
+  "Meherpur","Moulvibazar","Munshiganj","Mymensingh","Naogaon","Narail","Narayanganj",
+  "Narsingdi","Natore","Netrokona","Nilphamari","Noakhali","Pabna","Panchagarh",
+  "Patuakhali","Pirojpur","Rajbari","Rajshahi","Rangamati","Rangpur","Satkhira",
+  "Shariatpur","Sherpur","Sirajganj","Sunamganj","Sylhet","Tangail","Thakurgaon"
+];
+
+const BD_THANAS = {
+  "Dhaka":["Adabor","Badda","Banani","Bangshal","Cantonment","Chawkbazar","Darus Salam","Demra","Dhanmondi","Gendaria","Gulshan","Hazaribagh","Jatrabari","Kafrul","Kalabagan","Kamrangirchar","Khilgaon","Khilkhet","Kotwali","Lalbagh","Mirpur","Mohammadpur","Motijheel","Mugda","New Market","Pallabi","Paltan","Ramna","Rayer Bazar","Rupnagar","Sabujbagh","Shah Ali","Shahbagh","Sher-e-Bangla Nagar","Shyampur","Sutrapur","Tejgaon","Tejgaon Industrial","Turag","Uttara","Vatara","Wari"],
+  "Chattogram":["Akbar Shah","Bakalia","Bayejid","Boalkhali","Chandgaon","Chawkbazar","Chittagong Port","Double Mooring","Fatikchhari","Halishahar","Karnaphuli","Kotwali","Mirsharai","Pahartali","Panchlaish","Patiya","Potenga","Rangunia","Raozan","Sandwip","Satkania","Sitakunda"],
+  "Sylhet":["Balaganj","Beani Bazar","Bishwanath","Companiganj","Dakshin Surma","Fenchuganj","Golapganj","Gowainghat","Jaintiapur","Kanaighat","Osmani Nagar","South Surma","Sylhet Sadar","Zakiganj"],
+  "Rajshahi":["Bagha","Bagmara","Boalia","Charghat","Durgapur","Godagari","Matihar","Mohonpur","Paba","Puthia","Rajpara","Shah Makhdum","Tanore"],
+  "Khulna":["Batiaghata","Dacope","Daulatpur","Dighalia","Dumuria","Fultala","Khan Jahan Ali","Koyra","Paikgachha","Phultala","Rupsa","Sonadanga","Terokhada"],
+  "Barishal":["Agailjhara","Babuganj","Bakerganj","Banaripara","Gaurnadi","Hizla","Mehendiganj","Muladi","Ujirpur","Wazirpur"],
+  "Rangpur":["Badarganj","Gangachara","Kaunia","Mithapukur","Pirgachha","Pirganj","Rangpur Sadar","Taraganj"],
+  "Gazipur":["Gazipur Sadar","Kaliakair","Kaliganj","Kapasia","Sreepur"],
+  "Narayanganj":["Araihazar","Bandar","Narayanganj Sadar","Rupganj","Sonargaon"],
+  "Mymensingh":["Bhaluka","Dhobaura","Fulbaria","Gaffargaon","Gauripur","Haluaghat","Ishwarganj","Muktagachha","Mymensingh Sadar","Nandail","Phulpur","Trishal"],
+  "Cumilla":["Barura","Brahmanpara","Burichang","Chandina","Chauddagram","Comilla Adarsha Sadar","Daudkandi","Debidwar","Homna","Laksam","Lalmai","Manoharganj","Meghna","Muradnagar","Nangalkot","Titas"],
+  "Bogura":["Adamdighi","Bogura Sadar","Dupchanchia","Gabtali","Kahaloo","Nandigram","Sariakandi","Shajahanpur","Sherpur","Shibganj","Sonatala"],
+  "Tangail":["Basail","Bhuapur","Delduar","Dhanbari","Ghatail","Gopalpur","Kalihati","Madhupur","Mirzapur","Nagarpur","Sakhipur","Tangail Sadar"]
+};
+
+function initDistricts() {
+  const sel = document.getElementById('f-district');
+  BD_DISTRICTS.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    sel.appendChild(opt);
+  });
+}
+
+function onDistrictChange() {
+  const district = document.getElementById('f-district').value;
+  const thanaSel = document.getElementById('f-thana');
+  thanaSel.innerHTML = '<option value="">Select Thana (Optional)</option>';
+
+  if (district && BD_THANAS[district]) {
+    BD_THANAS[district].forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      thanaSel.appendChild(opt);
+    });
+    thanaSel.disabled = false;
+  } else {
+    thanaSel.disabled = true;
+  }
+
+  // Clear error state
+  document.getElementById('f-district').classList.remove('error');
+  checkShippingComplete();
+}
+
+function updateProgress(step) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('step-' + i);
+    const line = document.getElementById('line-' + i);
+
+    if (i < step) {
+      el.classList.add('completed');
+      el.classList.remove('active');
+      el.querySelector('.step-circle').innerHTML = '<i class="fas fa-check"></i>';
+      if (line) line.classList.add('completed');
+    } else if (i === step) {
+      el.classList.add('active');
+      el.classList.remove('completed');
+      el.querySelector('.step-circle').textContent = i;
+      if (line) line.classList.remove('completed');
+    } else {
+      el.classList.remove('active', 'completed');
+      el.querySelector('.step-circle').textContent = i;
+      if (line) line.classList.remove('completed');
+    }
+  }
+}
+
+// ========================
+// VALIDATION
+// ========================
+function validateForm() {
+  let valid = true;
+
+  // Text/tel inputs
+  const fields = [
+    { id: 'f-name', name: 'Full Name' },
+    { id: 'f-phone', name: 'Phone Number' },
+    { id: 'f-address', name: 'Delivery Address' },
+  ];
+
+  fields.forEach(f => {
+    const el = document.getElementById(f.id);
+    if (!el) return;
+    if (!el.value.trim()) {
+      el.classList.add('error');
+      // For phone, mark the wrapper
+      if (f.id === 'f-phone') el.closest('.phone-input-wrapper')?.classList.add('error');
+      valid = false;
+      setTimeout(() => {
+        el.classList.remove('error');
+        el.closest('.phone-input-wrapper')?.classList.remove('error');
+      }, 500);
+    } else {
+      el.classList.remove('error');
+    }
+  });
+
+  // District required
+  const district = document.getElementById('f-district');
+  if (!district.value) {
+    district.classList.add('error');
+    valid = false;
+    setTimeout(() => district.classList.remove('error'), 500);
+  } else {
+    district.classList.remove('error');
+  }
+
+  // Phone format — accept 01XXXXXXXXX or +8801XXXXXXXXX
+  const phoneRaw = document.getElementById('f-phone').value.trim();
+  if (phoneRaw && !/^(\+880|880)?0?(1[3-9]\d{8})$/.test(phoneRaw)) {
+    const el = document.getElementById('f-phone');
+    el.classList.add('error');
+    el.closest('.phone-input-wrapper')?.classList.add('error');
+    toast('সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX বা +8801XXXXXXXXX)', true);
+    valid = false;
+  }
+
+  if (!valid && !document.querySelector('.error')) {
+    toast('Please fill in all required fields', true);
+  } else if (!valid) {
+    const firstError = document.querySelector('.error');
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (fields.some(f => !document.getElementById(f.id)?.value.trim()) || !district.value) {
+      toast('Please fill in all required fields', true);
+    }
+  }
+
+  return valid;
+}
+
+// Remove error on input
+['f-name', 'f-phone', 'f-address'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    this.classList.remove('error');
+    this.closest('.phone-input-wrapper')?.classList.remove('error');
+  });
+});
+
+// ========================
+// PLACE ORDER
+// ========================
+async function placeOrder() {
+  if (!validateForm()) return;
+  if (Object.keys(cart).length === 0) {
+    toast('Your cart is empty', true);
+    return;
+  }
+
+  updateProgress(3);
+
+  const btn = document.getElementById('place-order-btn');
+  const originalHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Processing...</span>';
+
+  const name = document.getElementById('f-name').value.trim();
+  const phoneRaw2 = document.getElementById('f-phone').value.trim();
+  // Normalize: +8801XXXXXXXXX or 8801XXXXXXXXX → 01XXXXXXXXX
+  const phone = phoneRaw2.replace(/^(\+880|880)/, '0');
+  const street = document.getElementById('f-address').value.trim();
+  const district = document.getElementById('f-district').value;
+  const thana = document.getElementById('f-thana').value;
+  const address = [street, thana, district].filter(Boolean).join(', ');
+
+  const items = Object.entries(cart).map(([id, qty]) => ({ id, qty }));
+
+  try {
+    const res = await fetch('/api/place-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items,
+        name,
+        email: 'urboressentials@gmail.com',
+        phone,
+        address,
+        payment_method: selectedPayment
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.invoice) {
+      // Clear cart
+      cart = {};
+      try { localStorage.removeItem('urbor_cart'); } catch(e) {}
+
+      // Show success modal
+      document.getElementById('invoice-number').textContent = data.invoice.slice(0, 8).toUpperCase();
+      document.getElementById('success-modal').classList.add('show');
+
+      toast('✅ Order placed successfully!', false);
+    } else {
+      throw new Error(data.error || 'Failed to place order');
+    }
+  } catch (e) {
+    toast(e.message || 'Network error. Please try again.', true);
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+    updateProgress(2);
+  }
+}
+
+// ========================
+// TOAST
+// ========================
+let toastTimer = null;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  if (toastTimer) clearTimeout(toastTimer);
+
+  el.innerHTML = (isError ? '<i class="fas fa-exclamation-circle"></i> ' : '<i class="fas fa-check-circle"></i> ') + msg;
+  el.className = 'show' + (isError ? ' error' : ' success');
+
+  toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+  }, 3000);
+}
+
+// ========================
+// INIT
+// ========================
+initDistricts();
+renderSummary();
+updateProgress(1);
+
+// Update progress when shipping fields are filled
+function checkShippingComplete() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const address = document.getElementById('f-address').value.trim();
+  const district = document.getElementById('f-district').value;
+
+  if (name && phone && address && district) {
+    updateProgress(2);
+  }
+}
+
+['f-name', 'f-phone', 'f-address'].forEach(id => {
+  document.getElementById(id)?.addEventListener('blur', checkShippingComplete);
+});
+document.getElementById('f-district')?.addEventListener('change', checkShippingComplete);
+</script>
+
+</body>
+</html>
